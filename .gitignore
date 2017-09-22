@@ -99,3 +99,10 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+# dataset
+# download from https://github.com/thanhtoantnt/precond-inference
+data/
+
+# output
+output*/

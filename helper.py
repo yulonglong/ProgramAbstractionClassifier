@@ -10,65 +10,50 @@ import pickle as pk
 import os.path
 import copy
 from time import time
+import random
+
 
 logger = logging.getLogger(__name__)
 
-def getDevFoldDrawCards(x, y):
-    train_x, train_y, dev_x, dev_y = [], [], [], []
+def getDatasetRandom(dataset, numTrain, numValid, numTest):
+    """
+    Method to initialize and split training, validation, and test set
+    Random initialization
+    Sampling without replacement, note that dataset variable is modified
+    """
+    random.shuffle(dataset)
+    train = dataset[:numTrain]
+    train_list = [list(t) for t in zip(*train)]
+    train_x = train_list[0]
+    train_y = train_list[1]
+    del dataset[:numTrain]
 
-    for i in range(len(x)):
-        if i%20 == 0:
-            dev_x.append(x[i])
-            dev_y.append(y[i])
-        else:
-            train_x.append(x[i])
-            train_y.append(y[i])
+    random.shuffle(dataset)
+    valid = dataset[:numValid]
+    valid_list = [list(t) for t in zip(*valid)]
+    valid_x = valid_list[0]
+    valid_y = valid_list[1]
+    del dataset[:numValid]
 
-    return np.array(train_x), np.array(train_y), np.array(dev_x), np.array(dev_y)
+    random.shuffle(dataset)
+    test = dataset[:numTest]
+    test_list = [list(t) for t in zip(*test)]
+    test_x = test_list[0]
+    test_y = test_list[1]
+    del dataset[:numTest]
 
-def getFoldDrawCards(fold, x, y):
-    train_x, train_y, dev_x, dev_y, test_x, test_y = [], [], [], [], [], []
-    validation_fold = fold+1
-    if validation_fold > 9: validation_fold = 0
-    for i in range(len(x)):
-        if i%10 == fold:
-            test_x.append(x[i])
-            test_y.append(y[i])
-        elif i%10 == validation_fold:
-            dev_x.append(x[i])
-            dev_y.append(y[i])
-        else:
-            train_x.append(x[i])
-            train_y.append(y[i])
+    return np.array(train_x), np.array(train_y), np.array(valid_x), np.array(valid_y), np.array(test_x), np.array(test_y)
 
-    return np.array(train_x), np.array(train_y), np.array(dev_x), np.array(dev_y), np.array(test_x), np.array(test_y)
+def getSubDataset(dataset, numIter, batchSize):
+    subdataset = dataset[numIter*batchSize:(numIter+1)*batchSize]
+    test_list = [list(t) for t in zip(*subdataset)]
+    test_x = test_list[0]
+    test_y = test_list[1]
+    return np.array(test_x), np.array(test_y)
 
-def getFoldBulkCut(fold, x, y):
-    train_x, train_y, dev_x, dev_y, test_x, test_y = [], [], [], [], [], []
-    thresholdValid = float(fold) * 0.1
-    thresholdTest = thresholdValid + 0.1
-    if (thresholdValid == 1.0):
-        thresholdValid = 0.0
-    if (thresholdTest == 1.0):
-        thresholdTest = 0.0
-
-    bottomValid = thresholdValid*len(x)
-    topValid = (thresholdValid+0.1)*len(x)
-    bottomTest = thresholdTest*len(x)
-    topTest = (thresholdTest+0.1)*len(x)
-
-    for i in range(len(x)):
-        if (i < topValid) and (i >= bottomValid):
-            dev_x.append(x[i])
-            dev_y.append(y[i])
-        elif (i < topTest) and (i >= bottomTest):
-            test_x.append(x[i])
-            test_y.append(y[i])
-        else:
-            train_x.append(x[i])
-            train_y.append(y[i])
-
-    return np.array(train_x), np.array(train_y), np.array(dev_x), np.array(dev_y), np.array(test_x), np.array(test_y)
+def removeFromDataset(indices, dataset):
+    for index in sorted(indices, reverse=True):
+        del dataset[index]
 
 def calculate_confusion_matrix(y_gold, y_pred):
     """

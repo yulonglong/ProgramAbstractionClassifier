@@ -93,6 +93,9 @@ class Evaluator(object):
 
     def dump_ref_scores(self):
         """Dump reference (ground truth) scores"""
+        np.savetxt(self.out_dir + '/preds/train_x.txt', self.train_x, fmt='%i')
+        np.savetxt(self.out_dir + '/preds/dev_x.txt', self.dev_x, fmt='%i')
+        np.savetxt(self.out_dir + '/preds/test_x.txt', self.test_x, fmt='%i')
         np.savetxt(self.out_dir + '/preds/train_ref.txt', self.train_y_org, fmt='%i')
         np.savetxt(self.out_dir + '/preds/dev_ref.txt', self.dev_y_org, fmt='%i')
         np.savetxt(self.out_dir + '/preds/test_ref.txt', self.test_y_org, fmt='%i')
@@ -201,6 +204,7 @@ class Evaluator(object):
             self.best_dev_threshold = self.threshold
 
             # Save all necessary things
+            model.save(self.out_dir + '/models/best_model_complete.h5', overwrite=True)
             model.save_weights(self.out_dir + '/models/best_model_weights.h5', overwrite=True)
             np.savetxt(self.out_dir + '/models/best_threshold.txt', [self.best_dev_threshold], fmt='%.8f')
             self.dump_predictions(self.dev_pred, self.test_pred, self.threshold, 9999)

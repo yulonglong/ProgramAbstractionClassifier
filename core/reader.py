@@ -34,7 +34,7 @@ def read_dataset(train_path, model='default'):
             assert (tokens[-2][-1] == ')')
             tokens[-2] = tokens[-2][:-1]
             for i in xrange(len(tokens)-1):
-                curr_x.append(int(tokens[i]))
+                curr_x.append(float(tokens[i]))
 
             # logger.error(curr_x)
 

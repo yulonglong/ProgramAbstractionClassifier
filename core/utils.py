@@ -125,52 +125,6 @@ def green(message):
 def b_green(message):
 	return BColors.BGREEN + str(message) + BColors.ENDC
 	
-#-----------------------------------------------------------------------------------------------------------#
-
-def is_gpu_free(gpu_id):
-	out = capture('nvidia-smi -i ' + str(gpu_id)).strip()
-	tokens = out.split('\n')[-2].split()
-	return ' '.join(tokens[1:5]) == 'No running processes found'
-
-def set_theano_device(device, threads):
-	logger = logging.getLogger(__name__)
-	assert device == "cpu" or device.startswith("gpu"), "The device can only be 'cpu', 'gpu' or 'gpu<id>'"
-	if device.startswith("gpu") and len(device) > 3:
-		try:
-			gpu_id = int(device[3:])
-			if not is_gpu_free(gpu_id):
-				logger.warning('The selected GPU (GPU' + str(gpu_id) + ') is apparently busy.')
-		except ValueError:
-			logger.error("Unknown GPU device format: " + device)
-			sys.exit()
-	if device.startswith("gpu"):
-		logger.warning('Running on GPU yields non-deterministic results.')
-	assert sys.modules.has_key('theano') == False, "nmt.utils.set_theano_device() function cannot be called after importing theano"
-	os.environ['OMP_NUM_THREADS'] = str(threads)
-	os.environ['THEANO_FLAGS'] = 'device=' + device
-	os.environ['THEANO_FLAGS'] += ',force_device=True'
-	os.environ['THEANO_FLAGS'] += ',floatX=float32'
-	#os.environ['THEANO_FLAGS'] += ',warn_float64=warn'
-	#os.environ['THEANO_FLAGS'] += ',cast_policy=numpy+floatX'
-	#os.environ['THEANO_FLAGS'] += ',allow_gc=True'
-	os.environ['THEANO_FLAGS'] += ',print_active_device=False'
-	#os.environ['THEANO_FLAGS'] += ',mode=FAST_COMPILE'
-	os.environ['THEANO_FLAGS'] += ',mode=FAST_RUN'
-	os.environ['THEANO_FLAGS'] += ',on_unused_input=warn'
-	#os.environ['THEANO_FLAGS'] += ',nvcc.fastmath=True' # makes div and sqrt faster at the cost of precision
-	os.environ['THEANO_FLAGS'] += ',optimizer_including=cudnn' # Comment out if CUDNN is not available
-	import theano
-	if theano.config.device == "gpu":
-		logger.info(
-			"Device: " + theano.config.device.upper() + " "
-			+ str(theano.sandbox.cuda.active_device_number())
-			+ " (" + str(theano.sandbox.cuda.active_device_name()) + ")"
-		)
-	else:
-		logger.info("Device: " + theano.config.device.upper())
-
-#-----------------------------------------------------------------------------------------------------------#
-
 def print_args(args, path=None):
 	if path:
 		output_file = open(path, 'w')

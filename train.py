@@ -4,10 +4,10 @@ import codecs
 import logging
 import numpy as np
 import sys
-import utils as U
-import helper as H
-import reader as R
-import models as M
+import core.utils as U
+import core.helper as H
+import core.reader as R
+import core.models as M
 import pickle as pk
 import os.path
 from time import time
@@ -26,15 +26,16 @@ parser.add_argument("-o", "--out", dest="out_dir_path", type=str, metavar='<str>
 parser.add_argument("-dt", "--dataset-type", dest="dataset_type", type=str, metavar='<str>', required=True, help="The type of dataset.")
 parser.add_argument("-b", "--batch-size", dest="batch_size", type=int, metavar='<int>', default=32, help="Batch size for training")
 parser.add_argument("-be", "--batch-size-eval", dest="batch_size_eval", type=int, metavar='<int>', default=256, help="Batch size for evaluation")
-parser.add_argument("-asb", "--active-sampling-batch", dest="active_sampling_batch_size", type=int, metavar='<int>', default=512, help="Number of samples checked per active learning iteration")
-parser.add_argument("-asm", "--active-sampling-minimum", dest="active_sampling_minimum_addition", type=int, metavar='<int>', default=40, help="Number of samples required to continue training instead of sampling")
+parser.add_argument("--active-sampling-batch", dest="active_sampling_batch_size", type=int, metavar='<int>', default=512, help="Number of samples checked per active learning iteration")
+parser.add_argument("--active-sampling-minimum", dest="active_sampling_minimum_addition", type=int, metavar='<int>', default=40, help="Number of samples required to continue training instead of sampling")
+parser.add_argument("--test-amount-limit", dest="test_amount_limit", type=int, metavar='<int>', default=10000, help="Number test samples before stopping active learning (i.e., stop adding more samples into test set)")
+parser.add_argument("--num-parameter", dest="num_parameter", type=int, metavar='<int>', default=4, help="The number of parameters being passed into the function being analyzed.")
+parser.add_argument("--test-size", dest="test_size", type=int, metavar='<int>', default=2000, help="The amount of test samples being drawn at random at the beginning.")
 
 parser.add_argument("--epochs", dest="epochs", type=int, metavar='<int>', default=10, help="Number of epochs for Neural Net")
 parser.add_argument("--test", dest="is_test", action='store_true', help="Flag to indicate testing (default=False)")
 
 args = parser.parse_args()
-model_type = args.model_type
-
 out_dir = args.out_dir_path
 
 ##############################################################
@@ -53,8 +54,7 @@ if args.is_test and args.test_path == None:
     logger.error("Please enter the path to the file for testing!")
     exit()
 
-x, y = R.read_dataset(args.train_path, model=model_type)
+x, y = R.read_dataset(args.train_path, model=args.model_type)
 dataset = zip(x,y)
 
-
-accuracy = M.run_model(dataset, model_type, args, out_dir=out_dir, class_weight='balanced')
+accuracy = M.run_model(args, dataset, out_dir=out_dir, class_weight='balanced')

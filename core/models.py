@@ -32,45 +32,16 @@ def print_shape(train_x, train_y, dev_x, dev_y, test_x, test_y):
 #### BEGIN SECTION FOR NEURAL NET
 ##
 
-def create_nn_model():
-    from keras.layers import Input, Flatten, Dense, Dropout, Convolution2D, MaxPooling2D
+def create_nn_model(args):
+    from keras.layers import Input, Dense, Dropout
     from keras.models import Model
 
-    #Create your own input format (here 3x200x200)
-    img_input = Input(shape=(1,16,8), name='image_input')
-
-    # Block 1
-    x = Convolution2D(64, 3, 3, activation='relu', border_mode='same', name='block1_conv1', input_shape=(1,16,8))(img_input)
-    x = Convolution2D(64, 3, 3, activation='relu', border_mode='same', name='block1_conv2')(x)
-    x = MaxPooling2D((2, 2), strides=(2, 2), name='block1_pool')(x)
-    x = Dropout(0.5)(x)
-
-    # Block 2
-    x = Convolution2D(128, 3, 3, activation='relu', border_mode='same', name='block2_conv1')(x)
-    x = Convolution2D(128, 3, 3, activation='relu', border_mode='same', name='block2_conv2')(x)
-    x = MaxPooling2D((2, 2), strides=(2, 2), name='block2_pool')(x)
-    x = Dropout(0.5)(x)
-
-    # Classification block
-    x = Flatten(name='flatten')(x)
-    x = Dense(256, activation='relu', name='fc1')(x)
-    x = Dense(26, activation='softmax', name='predictions')(x)
-
-    my_model = Model(input=img_input, output=x)
-    my_model.summary()
-
-    return my_model
-
-def create_nn_model_signed():
-    from keras.layers import Input, Flatten, Dense, Dropout, Convolution2D, MaxPooling2D
-    from keras.models import Model
-
-    #Create your own input format (here 3x200x200)
-    inputs = Input(shape=(3,), name='inputs')
+    inputs = Input(shape=(args.num_parameter,), name='inputs')
     x = Dense(32, activation='relu', name='fc1')(inputs)
     x = Dropout(0.5)(x)
     x = Dense(32, activation='relu', name='fc2')(x)
-    # x = Dropout(0.5)(x)
+    x = Dropout(0.5)(x)
+    x = Dense(32, activation='relu', name='fc3')(x)
     outputs = Dense(1, activation='sigmoid', name='predictions')(x)
 
     my_model = Model(input=inputs, output=outputs)
@@ -78,7 +49,7 @@ def create_nn_model_signed():
 
     return my_model
 
-def run_model(dataset, model_type, args, out_dir=None, class_weight=None):
+def run_model(args, dataset, out_dir=None, class_weight=None):
     import keras.utils.np_utils as np_utils
 
     ############################################################################################
@@ -88,11 +59,11 @@ def run_model(dataset, model_type, args, out_dir=None, class_weight=None):
     import keras.optimizers as opt
     clipvalue = 0
     clipnorm = 10
-    optimizer = opt.RMSprop(lr=0.001, rho=0.9, epsilon=1e-06, clipnorm=clipnorm, clipvalue=clipvalue)
+    optimizer = opt.Adamax(lr=0.001, clipnorm=clipnorm, clipvalue=clipvalue)
     loss = 'binary_crossentropy'
     metric = 'accuracy'
 
-    model = create_nn_model_signed()
+    model = create_nn_model(args)
     model.compile(loss=loss, optimizer=optimizer, metrics=[metric])
     logger.info('model compilation completed!')
 
@@ -103,7 +74,7 @@ def run_model(dataset, model_type, args, out_dir=None, class_weight=None):
     logger.info("Current dataset size: %i" % len(dataset))
     # Get the random dataset first
 
-    train_x, train_y, dev_x, dev_y, test_x, test_y = H.getDatasetRandom(dataset, 6000, 2000, 2000)
+    train_x, train_y, dev_x, dev_y, test_x, test_y = H.getDatasetRandom(dataset, args.test_size * 3, args.test_size, args.test_size)
 
     from Evaluator import Evaluator
     from keras.models import load_model
@@ -111,17 +82,17 @@ def run_model(dataset, model_type, args, out_dir=None, class_weight=None):
     ##############################################
     ## Active learning Loop
     #
-    for i in xrange(1000):
-        # Stop the active learning if the test set is larger than 5000
-        if (len(test_y) > 5000):
-            break
 
-        if i > 0:
-            logger.info("================ Active Loop %i ====================" % i)
+    counter = 0
+    # Stop the active learning if the test set is larger than the specified amount
+    while (len(test_y) < args.test_amount_limit):
+        counter += 1
+        if counter > 1:
+            logger.info("================ Active Loop %i ====================" % counter)
             logger.info("Current dataset size: %i" % len(dataset))
             random.shuffle(dataset)
 
-            activeData_x = np.empty([0,3])
+            activeData_x = np.empty([0,args.num_parameter])
             activeData_y = np.empty([0])
 
             for numIter in xrange(len(dataset)/args.active_sampling_batch_size):

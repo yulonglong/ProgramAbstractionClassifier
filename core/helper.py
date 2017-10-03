@@ -164,3 +164,27 @@ def get_binary_predictions(pred, threshold=0.5):
     binary_pred[low_indices] = 0
 
     return binary_pred
+
+def compute_class_weight(train_y):
+    """
+    Compute class weight given imbalanced training data
+    Usually used in the neural network model to augment the loss function (weighted loss function)
+    Favouring/giving more weights to the rare classes.
+    """
+    import sklearn.utils.class_weight as scikit_class_weight
+
+    class_list = list(set(train_y))
+    class_weight_value = scikit_class_weight.compute_class_weight('balanced', class_list, train_y)
+    class_weight = dict()
+
+    # Initialize all classes in the dictionary with weight 1
+    curr_max = np.max(class_list)
+    for i in range(curr_max):
+        class_weight[i] = 1
+
+    # Build the dictionary using the weight obtained the scikit function
+    for i in range(len(class_list)):
+        class_weight[class_list[i]] = class_weight_value[i]
+
+    logger.info('Class weight dictionary: ' + str(class_weight))
+    return class_weight

@@ -92,6 +92,11 @@ def run_model(args, dataset, out_dir=None, class_weight=None):
             test_x = np.concatenate((test_x, test_active_x),axis=0)
             test_y = np.concatenate((test_y, test_active_y),axis=0)
 
+        ############################################################################################
+        ## Compute class weight (where data is usually imbalanced)
+        #
+        class_weight = H.compute_class_weight(np.array(train_y, dtype='float32'))
+
         ###############################################
         ## Real Training Starts
         #
@@ -104,7 +109,7 @@ def run_model(args, dataset, out_dir=None, class_weight=None):
             (test_x, test_y),
             no_threshold=True
         )
-        
+
         logger.info('---------------------------------------------------------------------------------------')
         logger.info('Initial Evaluation:')
         evl.evaluate(model, -1)
@@ -117,7 +122,7 @@ def run_model(args, dataset, out_dir=None, class_weight=None):
 
         for ii in range(args.epochs):
             t0 = time()
-            history = model.fit(train_x, train_y, batch_size=args.batch_size, nb_epoch=1, shuffle=True, verbose=0)
+            history = model.fit(train_x, train_y, batch_size=args.batch_size, class_weight=class_weight, nb_epoch=1, shuffle=True, verbose=0)
             tr_time = time() - t0
             total_train_time += tr_time
 

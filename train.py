@@ -34,6 +34,7 @@ parser.add_argument("--test-size", dest="test_size", type=int, metavar='<int>', 
 
 parser.add_argument("--epochs", dest="epochs", type=int, metavar='<int>', default=10, help="Number of epochs for Neural Net")
 parser.add_argument("--test", dest="is_test", action='store_true', help="Flag to indicate testing (default=False)")
+parser.add_argument("--equal-distribution", dest="is_equal_distribution", action='store_true', help="Flag to indicate active learning equal distribution (default=False)")
 
 args = parser.parse_args()
 out_dir = args.out_dir_path

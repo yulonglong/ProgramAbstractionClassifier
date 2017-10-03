@@ -74,11 +74,11 @@ def run_model(args, dataset, out_dir=None, class_weight=None):
 
     counter = 0
     curr_best_acc = 0
-    best_acc = 0
-    best_active_counter = 0
+    best_acc, best_active_counter = 0, 0
+    best_acc_full_len, best_active_counter_full_len = 0, 0
     # Stop the active learning if the test set is larger than the specified amount
     while counter < 1000:
-        if (len(test_y) < args.test_amount_limit and curr_best_acc > 0.98):
+        if (len(test_y) >= args.test_amount_limit and curr_best_acc > 0.98):
             break
         counter += 1
         if counter > 1:
@@ -147,3 +147,8 @@ def run_model(args, dataset, out_dir=None, class_weight=None):
             best_acc = curr_best_acc
             best_active_counter = counter
         logger.info('Best accuracy @%d : %.4f' % (best_active_counter, best_acc))
+
+        if best_acc_full_len < curr_best_acc and len(test_y) >= args.test_amount_limit:
+            best_acc_full_len = curr_best_acc
+            best_active_counter_full_len = counter
+        logger.info('Best accuracy with full test set @%d : %.4f' % (best_active_counter_full_len, best_acc_full_len))

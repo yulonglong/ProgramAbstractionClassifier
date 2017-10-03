@@ -31,11 +31,12 @@ echo "Running script on ${theano_flags_device} : ${gpu_name}"
 
 expt_num="02"
 function_name="foo_complex"
+num_parameter="4"
 
 THEANO_FLAGS="device=${theano_flags_device},floatX=float32,mode=FAST_RUN" python train.py \
--tr data/${function_name}_1m.out -dt ${function_name} -o expt${expt_num}-${function_name} \
+-tr data/${function_name}_1m.out -dt ${function_name} -o expt${expt_num}-${function_name}-${gpu_name} \
 -t nn --epochs 50 \
 --active-sampling-batch 200 --active-sampling-minimum 2048 \
---num-parameter 4 \
+--num-parameter ${num_parameter} \
 --test-amount-limit 10000 --test-size 2000
 

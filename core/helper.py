@@ -15,7 +15,34 @@ import random
 
 logger = logging.getLogger(__name__)
 
-def getDatasetRandom(dataset, numTrain, numValid, numTest):
+def splitDatasetClass(dataset):
+    dataset_list = [list(t) for t in zip(*dataset)]
+    dataset_x = dataset_list[0]
+    dataset_y = dataset_list[1]
+
+    dataset_pos_x = []
+    dataset_pos_y = []
+    
+    dataset_neg_x = []
+    dataset_neg_y = []
+
+    for i in xrange(len(dataset_y)):
+        if dataset_y[i] == 1:
+            dataset_pos_x.append(dataset_x[i])
+            dataset_pos_y.append(dataset_y[i])
+        elif dataset_y[i] == 0:
+            dataset_neg_x.append(dataset_x[i])
+            dataset_neg_y.append(dataset_y[i])
+
+    assert (len(dataset_pos_x) == len(dataset_pos_y))
+    assert (len(dataset_neg_x) == len(dataset_neg_y))
+
+    logger.info("Dataset_pos size: %d" % len(dataset_pos_x))
+    logger.info("Dataset_neg size: %d" % len(dataset_neg_x))
+
+    return zip(dataset_pos_x, dataset_pos_y), zip(dataset_neg_x, dataset_neg_y)
+
+def getDatasetRandomSingleClass(dataset, numTrain, numValid, numTest):
     """
     Method to initialize and split training, validation, and test set
     Random initialization
@@ -43,6 +70,19 @@ def getDatasetRandom(dataset, numTrain, numValid, numTest):
     del dataset[:numTest]
 
     return np.array(train_x), np.array(train_y), np.array(valid_x), np.array(valid_y), np.array(test_x), np.array(test_y)
+
+def getDatasetRandom(dataset_pos, dataset_neg, numTrain, numValid, numTest):
+    train_pos_x, train_pos_y, dev_pos_x, dev_pos_y, test_pos_x, test_pos_y = getDatasetRandomSingleClass(dataset_pos, numTrain / 2, numValid / 2, numTest / 2)
+    train_neg_x, train_neg_y, dev_neg_x, dev_neg_y, test_neg_x, test_neg_y = getDatasetRandomSingleClass(dataset_neg, numTrain / 2, numValid / 2, numTest / 2)
+    
+    train_x = np.concatenate((train_pos_x, train_neg_x),axis=0)
+    train_y = np.concatenate((train_pos_y, train_neg_y),axis=0)
+    dev_x = np.concatenate((dev_pos_x, dev_neg_x),axis=0)
+    dev_y = np.concatenate((dev_pos_y, dev_neg_y),axis=0)
+    test_x = np.concatenate((test_pos_x, test_neg_x),axis=0)
+    test_y = np.concatenate((test_pos_y, test_neg_y),axis=0)
+
+    return np.array(train_x), np.array(train_y), np.array(dev_x), np.array(dev_y), np.array(test_x), np.array(test_y)
 
 def getSubDataset(dataset, numIter, batchSize):
     subdataset = dataset[numIter*batchSize:(numIter+1)*batchSize]

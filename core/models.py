@@ -73,8 +73,9 @@ def run_model(args, dataset, out_dir=None, class_weight=None):
     #
 
     counter = 0
+    best_acc = 0
     # Stop the active learning if the test set is larger than the specified amount
-    while (len(test_y) < args.test_amount_limit):
+    while counter < 1000 and best_acc < 0.98:
         counter += 1
         if counter > 1:
             logger.info("================ Active Loop %i ====================" % counter)
@@ -89,8 +90,9 @@ def run_model(args, dataset, out_dir=None, class_weight=None):
             train_y = np.concatenate((train_y, train_active_y),axis=0)
             dev_x = np.concatenate((dev_x, dev_active_x),axis=0)
             dev_y = np.concatenate((dev_y, dev_active_y),axis=0)
-            test_x = np.concatenate((test_x, test_active_x),axis=0)
-            test_y = np.concatenate((test_y, test_active_y),axis=0)
+            if (len(test_y) < args.test_amount_limit):
+                test_x = np.concatenate((test_x, test_active_x),axis=0)
+                test_y = np.concatenate((test_y, test_active_y),axis=0)
 
         ############################################################################################
         ## Compute class weight (where data is usually imbalanced)

@@ -73,9 +73,13 @@ def run_model(args, dataset, out_dir=None, class_weight=None):
     #
 
     counter = 0
+    curr_best_acc = 0
     best_acc = 0
+    best_active_counter = 0
     # Stop the active learning if the test set is larger than the specified amount
-    while counter < 1000 and best_acc < 0.98:
+    while counter < 1000:
+        if (len(test_y) < args.test_amount_limit and curr_best_acc > 0.98):
+            break
         counter += 1
         if counter > 1:
             logger.info("================ Active Loop %i ====================" % counter)
@@ -130,12 +134,16 @@ def run_model(args, dataset, out_dir=None, class_weight=None):
 
             # Evaluate
             t0 = time()
-            best_acc = evl.evaluate(model, ii)
+            curr_best_acc = evl.evaluate(model, ii)
             evl_time = time() - t0
             total_eval_time += evl_time
 
             logger.info('Epoch %d, train: %is (%.1fm), evaluation: %is (%.1fm)' % (ii, tr_time, tr_time/60.0, evl_time, evl_time/60.0))
             logger.info('[Train] loss: %.4f , metric: %.4f' % (history.history['loss'][0], history.history['acc'][0]))
-
             # Print and send email Epoch LSTM
             content = evl.print_info()
+
+        if best_acc < curr_best_acc:
+            best_acc = curr_best_acc
+            best_active_counter = counter
+        logger.info('Best accuracy @%d : %.4f' % (best_active_counter, best_acc))

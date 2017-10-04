@@ -83,11 +83,13 @@ def run_model(args, dataset):
         counter += 1
         if counter > 1:
             logger.info("================ Active Loop %i ====================" % counter)
+            model = load_model(args.out_dir_path + '/models/best_model_complete.h5')
+
             train_active_x, train_active_y, dev_active_x, dev_active_y, test_active_x, test_active_y = None, None, None, None, None, None
             if (args.is_equal_distribution):
-                (train_active_x, train_active_y, dev_active_x, dev_active_y, test_active_x, test_active_y) = AL.obtain_data_active_learning_equal_distribution(args, dataset_pos, dataset_neg)
+                (train_active_x, train_active_y, dev_active_x, dev_active_y, test_active_x, test_active_y) = AL.obtain_data_active_learning_equal_distribution(args, model, dataset_pos, dataset_neg)
             else:
-                (train_active_x, train_active_y, dev_active_x, dev_active_y, test_active_x, test_active_y) = AL.obtain_data_active_learning(args, dataset)
+                (train_active_x, train_active_y, dev_active_x, dev_active_y, test_active_x, test_active_y) = AL.obtain_data_active_learning(args, model, dataset)
 
             # Concatenate additional dataset from active learning with the real dataset
             train_x = np.concatenate((train_x, train_active_x),axis=0)

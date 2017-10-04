@@ -14,9 +14,6 @@ from time import time
 
 from sklearn.metrics import accuracy_score
 
-from Evaluator import Evaluator
-from keras.models import load_model
-
 logger = logging.getLogger(__name__)
 
 
@@ -32,14 +29,11 @@ def print_shape(train_x, train_y, dev_x, dev_y, test_x, test_y):
     logger.info("test_x.shape  : " + str(test_x.shape))
     logger.info("test_y.shape  : " + str(test_y.shape))
 
-def obtain_data_active_learning_equal_distribution(args, dataset_pos, dataset_neg):
+def obtain_data_active_learning_equal_distribution(args, model, dataset_pos, dataset_neg):
     logger.info("Current dataset_pos size: %i" % len(dataset_pos))
     logger.info("Current dataset_neg size: %i" % len(dataset_neg))
     random.shuffle(dataset_pos)
     random.shuffle(dataset_neg)
-
-    # Load current best model (keras)
-    model = load_model(args.out_dir_path + '/models/best_model_complete.h5')
 
     activeData_pos_x = np.empty([0,args.num_parameter])
     activeData_pos_y = np.empty([0])
@@ -117,12 +111,9 @@ def obtain_data_active_learning_equal_distribution(args, dataset_pos, dataset_ne
     return (train_active_x, train_active_y, dev_active_x, dev_active_y, test_active_x, test_active_y)
 
 
-def obtain_data_active_learning(args, dataset):
+def obtain_data_active_learning(args, model, dataset):
 	logger.info("Current dataset size: %i" % len(dataset))
 	random.shuffle(dataset)
-
-	# Load current best model
-	model = load_model(args.out_dir_path + '/models/best_model_complete.h5')
 
 	activeData_x = np.empty([0, args.num_parameter])
 	activeData_y = np.empty([0])

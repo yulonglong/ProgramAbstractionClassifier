@@ -39,10 +39,6 @@ parser.add_argument("--equal-distribution", dest="is_equal_distribution", action
 args = parser.parse_args()
 out_dir = args.out_dir_path
 
-import sys
-sys.stdout = open(out_dir + '/stdout.txt', 'w')
-sys.stderr = open(out_dir + '/stderr.txt', 'w')
-
 ##############################################################
 ## Make directory and initialize some required variables
 #
@@ -54,6 +50,10 @@ U.mkdir_p(out_dir + '/models')
 U.mkdir_p(out_dir + '/models/best_weights')
 U.set_logger(out_dir)
 U.print_args(args)
+
+import sys
+sys.stdout = open(out_dir + '/stdout.txt', 'w')
+sys.stderr = open(out_dir + '/stderr.txt', 'w')
 
 if args.is_test and args.test_path == None:
     logger.error("Please enter the path to the file for testing!")

@@ -23,6 +23,7 @@ parser.add_argument("-tr", "--train-path", dest="train_path", type=str, metavar=
 parser.add_argument("-t", "--model-type", dest="model_type", type=str, metavar='<str>', default='LogisticRegression', help="Model type for classification")
 parser.add_argument("-ts", "--test-path", dest="test_path", type=str, metavar='<str>', default=None, help="The path to the test set")
 parser.add_argument("-o", "--out", dest="out_dir_path", type=str, metavar='<str>', required=True, help="The output folder")
+parser.add_argument("-a", "--algorithm", dest="algorithm", type=str, metavar='<str>', default='rmsprop', help="Optimization algorithm (rmsprop|sgd|adagrad|adadelta|adam|adamax) (default=rmsprop)")
 parser.add_argument("-dt", "--dataset-type", dest="dataset_type", type=str, metavar='<str>', required=True, help="The type of dataset.")
 parser.add_argument("-b", "--batch-size", dest="batch_size", type=int, metavar='<int>', default=32, help="Batch size for training")
 parser.add_argument("-be", "--batch-size-eval", dest="batch_size_eval", type=int, metavar='<int>', default=256, help="Batch size for evaluation")

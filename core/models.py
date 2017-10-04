@@ -118,11 +118,17 @@ def run_model(args, dataset):
             # Concatenate additional dataset from active learning with the real dataset
             train_x = np.concatenate((train_x, train_active_x),axis=0)
             train_y = np.concatenate((train_y, train_active_y),axis=0)
-            dev_x = np.concatenate((dev_x, dev_active_x),axis=0)
-            dev_y = np.concatenate((dev_y, dev_active_y),axis=0)
             if (len(test_y) < args.test_amount_limit):
+                dev_x = np.concatenate((dev_x, dev_active_x),axis=0)
+                dev_y = np.concatenate((dev_y, dev_active_y),axis=0)
                 test_x = np.concatenate((test_x, test_active_x),axis=0)
                 test_y = np.concatenate((test_y, test_active_y),axis=0)
+            else:
+                # If already exceed the desired test samples, add all to training set
+                train_x = np.concatenate((train_x, dev_active_x),axis=0)
+                train_y = np.concatenate((train_y, dev_active_y),axis=0)
+                train_x = np.concatenate((train_x, test_active_x),axis=0) 
+                train_y = np.concatenate((train_y, test_active_y),axis=0)
 
         ############################################################################################
         ## Compute class weight (where data is usually imbalanced)

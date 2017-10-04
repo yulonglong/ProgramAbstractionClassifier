@@ -39,6 +39,10 @@ parser.add_argument("--equal-distribution", dest="is_equal_distribution", action
 args = parser.parse_args()
 out_dir = args.out_dir_path
 
+import sys
+sys.stdout = open(out_dir + '/stdout.txt', 'w')
+sys.stderr = open(out_dir + '/stderr.txt', 'w')
+
 ##############################################################
 ## Make directory and initialize some required variables
 #
@@ -58,4 +62,4 @@ if args.is_test and args.test_path == None:
 x, y = R.read_dataset(args.train_path, model=args.model_type)
 dataset = zip(x,y)
 
-accuracy = M.run_model(args, dataset, out_dir=out_dir, class_weight='balanced')
+M.run_model(args, dataset)

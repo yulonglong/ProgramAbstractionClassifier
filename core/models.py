@@ -41,7 +41,7 @@ def create_nn_model(args):
 
     return my_model
 
-def run_model(args, dataset, out_dir=None, class_weight=None):
+def run_model(args, dataset):
     ############################################################################################
     ## Set optimizers and compile NN model
     #
@@ -109,7 +109,7 @@ def run_model(args, dataset, out_dir=None, class_weight=None):
         AL.print_shape(train_x, train_y, dev_x, dev_y, test_x, test_y)
 
         evl = Evaluator(
-            out_dir,
+            args.out_dir_path,
             (train_x, train_y),
             (dev_x, dev_y),
             (test_x, test_y),

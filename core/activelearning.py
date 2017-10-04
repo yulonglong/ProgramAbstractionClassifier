@@ -112,51 +112,54 @@ def obtain_data_active_learning_equal_distribution(args, model, dataset_pos, dat
 
 
 def obtain_data_active_learning(args, model, dataset):
-	logger.info("Current dataset size: %i" % len(dataset))
-	random.shuffle(dataset)
+    logger.info("Current dataset size: %i" % len(dataset))
+    random.shuffle(dataset)
 
-	activeData_x = np.empty([0, args.num_parameter])
-	activeData_y = np.empty([0])
+    activeData_x = np.empty([0, args.num_parameter])
+    activeData_y = np.empty([0])
 
-	for numIter in xrange(len(dataset)/args.active_sampling_batch_size):
-		# Get a subset of the data to evaluate with the current model
-		currActiveData_x, currActiveData_y = H.getSubDataset(dataset, numIter, args.active_sampling_batch_size)
-		# Obtain the prediction with the current dataset
-		activePred = model.predict(currActiveData_x, batch_size=args.batch_size_eval).squeeze()
-		# Get the indices of the dataset where the prediction is between 0.4 and 0.6
-		indices = np.where(np.logical_and(activePred>=0.4, activePred<=0.6))[0]
+    for numIter in xrange(len(dataset)/args.active_sampling_batch_size):
+        # Get a subset of the data to evaluate with the current model
+        currActiveData_x, currActiveData_y = H.getSubDataset(dataset, numIter, args.active_sampling_batch_size)
+        # Obtain the prediction with the current dataset
+        activePred = model.predict(currActiveData_x, batch_size=args.batch_size_eval).squeeze()
+        # Get the indices of the dataset where the prediction is between 0.4 and 0.6
+        indices = np.where(np.logical_and(activePred>=0.4, activePred<=0.6))[0]
 
-		# logger.info("Indices to be removed:")
-		# logger.info(indices)
-		# logger.info("Corresponding scores:")
-		# logger.info(activePred[indices])
+        # logger.info("Indices to be removed:")
+        # logger.info(indices)
+        # logger.info("Corresponding scores:")
+        # logger.info(activePred[indices])
 
-		# Remove the dataset to be added to the training/validation/test set from the global dataset
-		H.removeFromDataset(indices,dataset)
-		# Get the desired dataset with unsure probabilities
-		currActiveData_x = currActiveData_x[indices]
-		currActiveData_y = currActiveData_y[indices]
-		
-		# Combine with the real thing
-		activeData_x = np.concatenate((activeData_x, currActiveData_x),axis=0)
-		activeData_y = np.concatenate((activeData_y, currActiveData_y),axis=0)
-		logger.info("Current shape of data to add to the main dataset:")
-		print_shape_subset(activeData_x, activeData_y)
+        # Remove the dataset to be added to the training/validation/test set from the global dataset
+        H.removeFromDataset(indices,dataset)
+        # Get the desired dataset with unsure probabilities
+        currActiveData_x = currActiveData_x[indices]
+        currActiveData_y = currActiveData_y[indices]
+        
+        # Combine with the real thing
+        activeData_x = np.concatenate((activeData_x, currActiveData_x),axis=0)
+        activeData_y = np.concatenate((activeData_y, currActiveData_y),axis=0)
+        # logger.info("Current shape of data to add to the main dataset:")
+        # print_shape_subset(activeData_x, activeData_y)
 
-		if len(activeData_x) > args.active_sampling_minimum_addition:
-			break
+        if len(activeData_x) > args.active_sampling_minimum_addition:
+            break
 
-	train_active_x = activeData_x[:len(activeData_x)*3/5]
-	train_active_y = activeData_y[:len(activeData_y)*3/5]
-	dev_active_x = activeData_x[len(activeData_x)*3/5:len(activeData_x)*4/5]
-	dev_active_y = activeData_y[len(activeData_y)*3/5:len(activeData_x)*4/5]
-	test_active_x = activeData_x[len(activeData_x)*4/5:]
-	test_active_y = activeData_y[len(activeData_x)*4/5:]
-	print_shape(train_active_x, train_active_y, dev_active_x, dev_active_y, test_active_x, test_active_y)
-	# logger.info(train_active_x)
-	# logger.info(dev_active_x)
-	# logger.info(test_active_x)
+    logger.info("Shape of data to add to the main dataset:")
+    print_shape_subset(activeData_x, activeData_y)
 
-	logger.info("Current dataset size: %i" % len(dataset))
+    train_active_x = activeData_x[:len(activeData_x)*3/5]
+    train_active_y = activeData_y[:len(activeData_y)*3/5]
+    dev_active_x = activeData_x[len(activeData_x)*3/5:len(activeData_x)*4/5]
+    dev_active_y = activeData_y[len(activeData_y)*3/5:len(activeData_x)*4/5]
+    test_active_x = activeData_x[len(activeData_x)*4/5:]
+    test_active_y = activeData_y[len(activeData_x)*4/5:]
+    print_shape(train_active_x, train_active_y, dev_active_x, dev_active_y, test_active_x, test_active_y)
+    # logger.info(train_active_x)
+    # logger.info(dev_active_x)
+    # logger.info(test_active_x)
 
-	return (train_active_x, train_active_y, dev_active_x, dev_active_y, test_active_x, test_active_y)
+    logger.info("Current dataset size: %i" % len(dataset))
+
+    return (train_active_x, train_active_y, dev_active_x, dev_active_y, test_active_x, test_active_y)

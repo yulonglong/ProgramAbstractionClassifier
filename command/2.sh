@@ -32,11 +32,50 @@ echo "Running script on ${theano_flags_device} : ${gpu_name}"
 expt_num="02"
 function_name="foo_complex"
 num_parameter="4"
-
+optimizer="adamax"
 THEANO_FLAGS="device=${theano_flags_device},floatX=float32,mode=FAST_RUN" python train.py \
--tr data/${function_name}_1m.out -dt ${function_name} -o expt${expt_num}-${function_name}-${gpu_name} \
--t nn --epochs 50 \
---active-sampling-batch 200 --active-sampling-minimum 2048 \
+-tr data/${function_name}_1m.out -dt ${function_name} -o expt${expt_num}-${function_name}-a${optimizer}-${gpu_name} \
+-t nn --epochs 50 -a ${optimizer} \
+--active-sampling-batch 200 --active-sampling-minimum 2000 \
 --num-parameter ${num_parameter} \
 --test-amount-limit 10000 --test-size 2000
 
+optimizer="adadelta"
+THEANO_FLAGS="device=${theano_flags_device},floatX=float32,mode=FAST_RUN" python train.py \
+-tr data/${function_name}_1m.out -dt ${function_name} -o expt${expt_num}-${function_name}-a${optimizer}-${gpu_name} \
+-t nn --epochs 50 -a ${optimizer} \
+--active-sampling-batch 200 --active-sampling-minimum 2000 \
+--num-parameter ${num_parameter} \
+--test-amount-limit 10000 --test-size 2000
+
+optimizer="adam"
+THEANO_FLAGS="device=${theano_flags_device},floatX=float32,mode=FAST_RUN" python train.py \
+-tr data/${function_name}_1m.out -dt ${function_name} -o expt${expt_num}-${function_name}-a${optimizer}-${gpu_name} \
+-t nn --epochs 50 -a ${optimizer} \
+--active-sampling-batch 200 --active-sampling-minimum 2000 \
+--num-parameter ${num_parameter} \
+--test-amount-limit 10000 --test-size 2000
+
+optimizer="adagrad"
+THEANO_FLAGS="device=${theano_flags_device},floatX=float32,mode=FAST_RUN" python train.py \
+-tr data/${function_name}_1m.out -dt ${function_name} -o expt${expt_num}-${function_name}-a${optimizer}-${gpu_name} \
+-t nn --epochs 50 -a ${optimizer} \
+--active-sampling-batch 200 --active-sampling-minimum 2000 \
+--num-parameter ${num_parameter} \
+--test-amount-limit 10000 --test-size 2000
+
+optimizer="sgd"
+THEANO_FLAGS="device=${theano_flags_device},floatX=float32,mode=FAST_RUN" python train.py \
+-tr data/${function_name}_1m.out -dt ${function_name} -o expt${expt_num}-${function_name}-a${optimizer}-${gpu_name} \
+-t nn --epochs 50 -a ${optimizer} \
+--active-sampling-batch 200 --active-sampling-minimum 2000 \
+--num-parameter ${num_parameter} \
+--test-amount-limit 10000 --test-size 2000
+
+optimizer="rmsprop"
+THEANO_FLAGS="device=${theano_flags_device},floatX=float32,mode=FAST_RUN" python train.py \
+-tr data/${function_name}_1m.out -dt ${function_name} -o expt${expt_num}-${function_name}-a${optimizer}-${gpu_name} \
+-t nn --epochs 50 -a ${optimizer} \
+--active-sampling-batch 200 --active-sampling-minimum 2000 \
+--num-parameter ${num_parameter} \
+--test-amount-limit 10000 --test-size 2000

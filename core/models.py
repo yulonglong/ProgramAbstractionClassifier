@@ -53,15 +53,17 @@ def create_nn_model(args):
     from keras.models import Model
 
     inputs = Input(shape=(args.num_parameter,), name='inputs')
-    x = Dense(32, activation='relu', name='fc1')(inputs)
-    x = Dropout(0.5)(x)
-    x = Dense(32, activation='relu', name='fc2')(x)
-    x = Dropout(0.5)(x)
-    x = Dense(32, activation='relu', name='fc3')(x)
+    x = Dense(32, activation='relu')(inputs)
+    for i in xrange(1, args.num_layer):
+        x = Dropout(0.5)(x)
+        x = Dense(32, activation='relu')(x)
     outputs = Dense(1, activation='sigmoid', name='predictions')(x)
 
     my_model = Model(input=inputs, output=outputs)
     my_model.summary()
+
+    sys.stdout.flush()
+    sys.stderr.flush()
 
     return my_model
 
@@ -101,9 +103,9 @@ def run_model(args, dataset):
     best_acc, best_active_counter = 0, 0
     best_acc_full_len, best_active_counter_full_len = 0, 0
     # Stop the active learning if the test set is larger than the specified amount
-    while counter < 1000:
-        if (len(test_y) >= args.test_amount_limit and curr_best_acc > 0.98):
-            break
+    while counter < 200:
+        if (len(test_y) >= args.test_amount_limit and curr_best_acc > 0.98): break
+        if (len(train_y) >= args.train_amount_limit): break
         counter += 1
         if counter > 1:
             logger.info("================ Active Loop %i ====================" % counter)

@@ -29,12 +29,30 @@ fi
 
 echo "Running script on ${theano_flags_device} : ${gpu_name}"
 
-function_name="foo_complex"
+expt_num="03"
+function_name="string_sub"
+num_parameter="2"
+num_str_parameter="1"
+num_layer="2"
+test_limit="10000"
+train_limit="100000"
+
+cnn_dim="100"
+cnn_win="3"
+cnn_layer="1"
+rnn_dim="100"
+rnn_layer="1"
+pooling_type="attsum"
+
+optimizer="adagrad"
 
 THEANO_FLAGS="device=${theano_flags_device},floatX=float32,mode=FAST_RUN" python train.py \
--tr data/${function_name}_1m.out -dt ${function_name} -o output-${function_name} \
--t nn --epochs 50 \
---active-sampling-batch 200 --active-sampling-minimum 2048 \
---num-parameter 4 \
---test-amount-limit 10000 --test-size 2000
+-tr data/${function_name}_1m.out -dt ${function_name} -o expt${expt_num}-${function_name}-a${optimizer}-l${num_layer}-${rand}${gpu_name} \
+-t nn --epochs 50 -a ${optimizer} -l ${num_layer} \
+--active-sampling-batch 256 --active-sampling-minimum 1000 \
+--num-parameter ${num_parameter} \
+--num-str-parameter ${num_str_parameter} \
+-cl ${cnn_layer} -c ${cnn_dim} -w ${cnn_win} \
+-rl ${rnn_layer} -r ${rnn_dim} -p ${pooling_type} \
+--train-amount-limit ${train_limit} --test-amount-limit ${test_limit} --test-size 2000
 

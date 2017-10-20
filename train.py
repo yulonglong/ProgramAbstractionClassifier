@@ -36,6 +36,16 @@ parser.add_argument("--num-str-parameter", dest="num_str_parameter", type=int, m
 parser.add_argument("--num-parameter", dest="num_parameter", type=int, metavar='<int>', default=4, help="The number of parameters being passed into the function being analyzed.")
 parser.add_argument("--test-size", dest="test_size", type=int, metavar='<int>', default=2000, help="The amount of test samples being drawn at random at the beginning.")
 
+parser.add_argument("-e", "--embdim", dest="emb_dim", type=int, metavar='<int>', default=50, help="Embeddings dimension (default=50)")
+parser.add_argument("-cl","--cnn-layer", dest="cnn_layer", type=int, metavar='<int>', default=1, help="Number of CNN layer (default=1)")
+parser.add_argument("-c", "--cnndim", dest="cnn_dim", type=int, metavar='<int>', default=0, help="CNN output dimension. '0' means no CNN layer (default=0)")
+parser.add_argument("-w", "--cnnwin", dest="cnn_window_size", type=int, metavar='<int>', default=2, help="CNN window size. (default=2)")
+parser.add_argument("-rl","--rnn-layer", dest="rnn_layer", type=int, metavar='<int>', default=1, help="Number of RNN layer (default=1)")
+parser.add_argument("-r", "--rnndim", dest="rnn_dim", type=int, metavar='<int>', default=300, help="RNN dimension. '0' means no RNN layer (default=300)")
+parser.add_argument("-p", "--pooling-type", dest="pooling_type", type=str, metavar='<str>', default=None, help="Pooling type (meanot|attsum|attmean) (default=meanot)")
+parser.add_argument("-v", "--vocab-size", dest="vocab_size", type=int, metavar='<int>', default=128, help="Vocab size (default=128)")
+parser.add_argument("-trll", "--train-length-limit", dest="train_length_limit", type=int, metavar='<int>', default=1000, help="The maximum length of any training instance, longer instances will get thrown away (default=1000)")
+
 parser.add_argument("--epochs", dest="epochs", type=int, metavar='<int>', default=10, help="Number of epochs for Neural Net")
 parser.add_argument("--test", dest="is_test", action='store_true', help="Flag to indicate testing (default=False)")
 parser.add_argument("--equal-distribution", dest="is_equal_distribution", action='store_true', help="Flag to indicate active learning equal distribution (default=False)")

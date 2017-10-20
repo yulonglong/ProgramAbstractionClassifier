@@ -51,7 +51,7 @@ class Evaluator(object):
         self.best_dev_threshold = 0.5
         self.best_test_missed = -1
         self.best_test_missed_epoch = -1
-        self.dump_ref_scores()
+        # self.dump_ref_scores()
         
         self.dev_loss, self.dev_metric = 0.0, 0.0
         self.test_loss, self.test_metric = 0.0, 0.0

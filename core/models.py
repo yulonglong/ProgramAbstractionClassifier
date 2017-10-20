@@ -49,18 +49,67 @@ def get_optimizer(args):
     return optimizer
 
 def create_nn_model(args):
-    from keras.layers import Input, Dense, Dropout
+    from keras.layers import Dense, Dropout, Embedding, LSTM, Input, merge
     from keras.models import Model
+    from core.my_layers import Attention, MeanOverTime, Conv1DWithMasking, MaxPooling1DWithMasking
 
-    inputs = Input(shape=(args.num_parameter,), name='inputs')
-    x = Dense(32, activation='relu')(inputs)
-    for i in xrange(1, args.num_layer):
-        x = Dropout(0.5)(x)
-        x = Dense(32, activation='relu')(x)
-    outputs = Dense(1, activation='sigmoid', name='predictions')(x)
+    dropout_rate = 0.5
+    default_dropout_W = dropout_rate
+    default_dropout_U = dropout_rate / 5.0
+    default_dropout = dropout_rate
 
-    my_model = Model(input=inputs, output=outputs)
-    my_model.summary()
+    if (args.num_str_parameter > 0):
+        sequence = Input(shape=(None,), dtype='int32')
+        embed = Embedding(args.vocab_size, args.emb_dim, mask_zero=True)(sequence)
+        conv = embed
+
+        for i in range(args.cnn_layer):
+            prevConv = conv
+            conv = Conv1DWithMasking(nb_filter=args.cnn_dim, filter_length=args.cnn_window_size, border_mode='same', subsample_length=1)(conv)
+            conv = Dropout(default_dropout)(conv)
+        
+        recc = conv
+
+        for i in range(args.rnn_layer):
+            prevRecc = recc
+            recc = LSTM(args.rnn_dim, dropout_W=default_dropout_W, dropout_U=default_dropout_U, return_sequences=True)(recc)
+            recc = Dropout(default_dropout)(recc)
+        
+        # if pooling type is not specified, use attsum by default
+        if not args.pooling_type:
+            args.pooling_type = 'attsum'
+
+        if args.pooling_type == 'meanot':
+            recc = MeanOverTime(mask_zero=True)(recc)
+        elif args.pooling_type.startswith('att'):
+            recc = Attention(op=args.pooling_type, name="attention_layer")(recc)
+        logger.info('%s pooling layer added!', args.pooling_type)
+
+        # after pooling
+
+        inputs = Input(shape=(args.num_parameter,), name='inputs')
+        x = Dense(32, activation='relu')(inputs)
+        for i in xrange(1, args.num_layer):
+            x = Dropout(0.5)(x)
+            x = Dense(32, activation='relu')(x)
+
+        x = merge([x,recc], mode='concat', concat_axis=-1)
+        outputs = Dense(1, activation='sigmoid', name='predictions')(x)
+
+        my_model = Model(input=[sequence, inputs], output=outputs)
+        my_model.summary()
+
+    else:
+        # When inputs are just real numbers
+        inputs = Input(shape=(args.num_parameter,), name='inputs')
+        x = Dense(32, activation='relu')(inputs)
+        for i in xrange(1, args.num_layer):
+            x = Dropout(0.5)(x)
+            x = Dense(32, activation='relu')(x)
+        outputs = Dense(1, activation='sigmoid', name='predictions')(x)
+
+        my_model = Model(input=inputs, output=outputs)
+        my_model.summary()
 
     sys.stdout.flush()
     sys.stderr.flush()
@@ -142,11 +191,20 @@ def run_model(args, dataset):
         #
         AL.print_shape(train_x, train_y, dev_x, dev_y, test_x, test_y)
 
+        str_train_x = np.array(train_x)
+        str_train_y = np.array(train_y)
+        str_dev_x = np.array(dev_x)
+        str_dev_y = np.array(dev_y)
+        str_test_x = np.array(test_x)
+        str_test_y = np.array(test_y)
+        if (args.num_str_parameter > 0):
+            str_train_x, str_train_y, str_dev_x, str_dev_y, str_test_x, str_test_y = H.convertDataWithStrArgs(train_x, train_y, dev_x, dev_y, test_x, test_y)
+
         evl = Evaluator(
             args.out_dir_path,
-            (train_x, train_y),
-            (dev_x, dev_y),
-            (test_x, test_y),
+            (str_train_x, str_train_y),
+            (str_dev_x, str_dev_y),
+            (str_test_x, str_test_y),
             no_threshold=True
         )
 
@@ -162,7 +220,7 @@ def run_model(args, dataset):
 
         for ii in range(args.epochs):
             t0 = time()
-            history = model.fit(train_x, train_y, batch_size=args.batch_size, class_weight=class_weight, nb_epoch=1, shuffle=True, verbose=0)
+            history = model.fit(str_train_x, str_train_y, batch_size=args.batch_size, class_weight=class_weight, nb_epoch=1, shuffle=True, verbose=0)
             tr_time = time() - t0
             total_train_time += tr_time
 

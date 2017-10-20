@@ -18,16 +18,16 @@ logger = logging.getLogger(__name__)
 
 
 def print_shape_subset(x, y):
-    logger.info("x.shape : " + str(x.shape))
-    logger.info("y.shape : " + str(y.shape))
+    logger.info("x.shape : " + str(len(x.shape)))
+    logger.info("y.shape : " + str(len(y.shape)))
 
 def print_shape(train_x, train_y, dev_x, dev_y, test_x, test_y):
-    logger.info("train_x.shape : " + str(train_x.shape))
-    logger.info("train_y.shape : " + str(train_y.shape))
-    logger.info("dev_x.shape   : " + str(dev_x.shape))
-    logger.info("dev_y.shape   : " + str(dev_y.shape))
-    logger.info("test_x.shape  : " + str(test_x.shape))
-    logger.info("test_y.shape  : " + str(test_y.shape))
+    logger.info("train_x.shape : " + str(len(train_x)))
+    logger.info("train_y.shape : " + str(len(train_y)))
+    logger.info("dev_x.shape   : " + str(len(dev_x)))
+    logger.info("dev_y.shape   : " + str(len(dev_y)))
+    logger.info("test_x.shape  : " + str(len(test_x)))
+    logger.info("test_y.shape  : " + str(len(test_y)))
 
 def obtain_data_active_learning_equal_distribution(args, model, dataset_pos, dataset_neg):
     logger.info("Current dataset_pos size: %i" % len(dataset_pos))

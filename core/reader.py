@@ -12,13 +12,13 @@ import copy
 
 logger = logging.getLogger(__name__)
         
-def read_dataset(train_path, model='default'):
+def read_dataset(args, model='default'):
     training_instances = []
     x = []
     y = []
     counter = 0
     class_mapping_index = 0
-    with codecs.open(train_path, mode='r', encoding='ISO-8859-1') as input_file:
+    with codecs.open(args.train_path, mode='r', encoding='ISO-8859-1') as input_file:
         for line in input_file:
             if counter == 0:
                 counter += 1
@@ -34,7 +34,10 @@ def read_dataset(train_path, model='default'):
             assert (tokens[-2][-1] == ')')
             tokens[-2] = tokens[-2][:-1]
             for i in xrange(len(tokens)-1):
-                curr_x.append(float(tokens[i]))
+                if (i < args.num_str_parameter):
+                    curr_x.append(tokens[i])
+                else:
+                    curr_x.append(float(tokens[i]))
 
             # logger.error(curr_x)
 

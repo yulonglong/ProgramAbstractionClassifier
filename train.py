@@ -32,6 +32,7 @@ parser.add_argument("--active-sampling-batch", dest="active_sampling_batch_size"
 parser.add_argument("--active-sampling-minimum", dest="active_sampling_minimum_addition", type=int, metavar='<int>', default=40, help="Number of samples required to continue training instead of sampling")
 parser.add_argument("--train-amount-limit", dest="train_amount_limit", type=int, metavar='<int>', default=10000, help="Number train samples before stopping active learning (i.e., stop adding more samples into train set)")
 parser.add_argument("--test-amount-limit", dest="test_amount_limit", type=int, metavar='<int>', default=10000, help="Number test samples before stopping active learning (i.e., stop adding more samples into test set)")
+parser.add_argument("--num-str-parameter", dest="num_str_parameter", type=int, metavar='<int>', default=0, help="The number of string  (variable length, such as arrays) being passed into the function.")
 parser.add_argument("--num-parameter", dest="num_parameter", type=int, metavar='<int>', default=4, help="The number of parameters being passed into the function being analyzed.")
 parser.add_argument("--test-size", dest="test_size", type=int, metavar='<int>', default=2000, help="The amount of test samples being drawn at random at the beginning.")
 
@@ -54,15 +55,15 @@ U.mkdir_p(out_dir + '/models/best_weights')
 U.set_logger(out_dir)
 U.print_args(args)
 
-import sys
-sys.stdout = open(out_dir + '/stdout.txt', 'w')
-sys.stderr = open(out_dir + '/stderr.txt', 'w')
+# import sys
+# sys.stdout = open(out_dir + '/stdout.txt', 'w')
+# sys.stderr = open(out_dir + '/stderr.txt', 'w')
 
 if args.is_test and args.test_path == None:
     logger.error("Please enter the path to the file for testing!")
     exit()
 
-x, y = R.read_dataset(args.train_path, model=args.model_type)
+x, y = R.read_dataset(args, model=args.model_type)
 dataset = zip(x,y)
 
 M.run_model(args, dataset)

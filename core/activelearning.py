@@ -48,9 +48,17 @@ def obtain_data_active_learning_equal_distribution(args, model, dataset_pos, dat
         currActiveData_pos_x, currActiveData_pos_y = H.getSubDataset(dataset_pos, numIter, active_sampling_batch_size)
         currActiveData_neg_x, currActiveData_neg_y = H.getSubDataset(dataset_neg, numIter, active_sampling_batch_size)
 
+
+        # Process Dataset if contains string for RNN
+        str_currActiveData_pos_x, str_currActiveData_pos_y = currActiveData_pos_x, currActiveData_pos_y
+        str_currActiveData_neg_x, str_currActiveData_neg_y = currActiveData_neg_x, currActiveData_neg_y
+        if (args.num_str_parameter > 0):
+            str_currActiveData_pos_x, str_currActiveData_pos_y = H.convertDataWithStrArgsSingle(currActiveData_pos_x, currActiveData_pos_y)
+            str_currActiveData_neg_x, str_currActiveData_neg_y = H.convertDataWithStrArgsSingle(currActiveData_neg_x, currActiveData_neg_y)
+
         # Obtain the prediction with the current dataset
-        activePred_pos = model.predict(currActiveData_pos_x, batch_size=args.batch_size_eval).squeeze()
-        activePred_neg = model.predict(currActiveData_neg_x, batch_size=args.batch_size_eval).squeeze()
+        activePred_pos = model.predict(str_currActiveData_pos_x, batch_size=args.batch_size_eval).squeeze()
+        activePred_neg = model.predict(str_currActiveData_neg_x, batch_size=args.batch_size_eval).squeeze()
 
         # Get the indices of the dataset where the prediction is between 0.4 and 0.6
         indices_pos = np.where(np.logical_and(activePred_pos>=0.4, activePred_pos<=0.6))[0]
@@ -121,8 +129,13 @@ def obtain_data_active_learning(args, model, dataset):
     for numIter in xrange(len(dataset)/args.active_sampling_batch_size):
         # Get a subset of the data to evaluate with the current model
         currActiveData_x, currActiveData_y = H.getSubDataset(dataset, numIter, args.active_sampling_batch_size)
+
+        # Process Dataset if contains string for RNN
+        str_currActiveData_x, str_currActiveData_y = currActiveData_x, currActiveData_y
+        if (args.num_str_parameter > 0):
+            str_currActiveData_x, str_currActiveData_y = H.convertDataWithStrArgsSingle(currActiveData_x, currActiveData_y)
         # Obtain the prediction with the current dataset
-        activePred = model.predict(currActiveData_x, batch_size=args.batch_size_eval).squeeze()
+        activePred = model.predict(str_currActiveData_x, batch_size=args.batch_size_eval).squeeze()
         # Get the indices of the dataset where the prediction is between 0.4 and 0.6
         indices = np.where(np.logical_and(activePred>=0.4, activePred<=0.6))[0]
 

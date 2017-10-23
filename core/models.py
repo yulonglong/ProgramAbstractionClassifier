@@ -48,6 +48,25 @@ def get_optimizer(args):
     
     return optimizer
 
+def load_model_architecture_and_weights(arch_path, model_weight_path):
+    """
+    Load model architecture and weights
+    """
+    import keras.backend as K
+    from keras.layers.embeddings import Embedding
+    from keras.models import Sequential, Model, model_from_json
+    from keras.layers.core import Dense, Dropout, Activation
+    from core.my_layers import Attention, MeanOverTime, Conv1DWithMasking
+    logger.info('Loading model architecture from: ' + arch_path)
+    with open(arch_path, 'r') as arch_file:
+        model = model_from_json(arch_file.read(), custom_objects={
+            "MeanOverTime": MeanOverTime, "Attention": Attention, "Conv1DWithMasking":Conv1DWithMasking})
+    logger.info('Loading model weights from: ' + model_weight_path)
+    model.load_weights(model_weight_path)
+    logger.info('Loading model architecture and weights completed!')
+
+    return model
+
 def create_nn_model(args):
     from keras.layers import Dense, Dropout, Embedding, LSTM, Input, merge
     from keras.models import Model
@@ -111,6 +130,14 @@ def create_nn_model(args):
         my_model = Model(input=inputs, output=outputs)
         my_model.summary()
 
+    # Save model in to an image file
+    from keras.utils.visualize_util import plot
+    plot(my_model, to_file = args.out_dir_path + '/models/model.png')
+
+    logger.info('Saving model architecture')
+    with open(args.out_dir_path + '/models/model_arch.json', 'w') as arch:
+        arch.write(my_model.to_json(indent=2))
+
     sys.stdout.flush()
     sys.stderr.flush()
 
@@ -158,7 +185,9 @@ def run_model(args, dataset):
         counter += 1
         if counter > 1:
             logger.info("================ Active Loop %i ====================" % counter)
-            model = load_model(args.out_dir_path + '/models/best_model_complete.h5')
+            # model = load_model(args.out_dir_path + '/models/best_model_complete.h5', custom_objects=custom_objects)
+            model = load_model_architecture_and_weights(args.out_dir_path + '/models/model_arch.json', args.out_dir_path + '/models/best_model_weights.h5')
+            model.compile(loss=loss, optimizer=optimizer, metrics=[metric])
 
             train_active_x, train_active_y, dev_active_x, dev_active_y, test_active_x, test_active_y = None, None, None, None, None, None
             if (args.is_equal_distribution):

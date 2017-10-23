@@ -15,35 +15,23 @@ import random
 
 logger = logging.getLogger(__name__)
 
-def convertDataWithStrArgs(train_x, train_y, valid_x, valid_y, test_x, test_y):
+def convertDataWithStrArgsSingle(x, y):
     new_train_x = []
     sequence_train_x = []
     float_train_x = []
-    for i in xrange(len(train_x)):
-        sequence_train_x.append(np.array(train_x[i][0]))
-        float_train_x.append(np.array(train_x[i][1]))
+    for i in xrange(len(x)):
+        sequence_train_x.append(np.array(x[i][0]))
+        float_train_x.append(np.array(x[i][1]))
     new_train_x.append(np.array(sequence_train_x))
     new_train_x.append(np.array(float_train_x))
 
-    new_valid_x = []
-    sequence_valid_x = []
-    float_valid_x = []
-    for i in xrange(len(valid_x)):
-        sequence_valid_x.append(np.array(valid_x[i][0]))
-        float_valid_x.append(np.array(valid_x[i][1]))
-    new_valid_x.append(np.array(sequence_valid_x))
-    new_valid_x.append(np.array(float_valid_x))
-    
-    new_test_x = []
-    sequence_test_x = []
-    float_test_x = []
-    for i in xrange(len(test_x)):
-        sequence_test_x.append(np.array(test_x[i][0]))
-        float_test_x.append(np.array(test_x[i][1]))
-    new_test_x.append(np.array(sequence_test_x))
-    new_test_x.append(np.array(float_test_x))
+    return new_train_x, np.array(y)
 
-    return new_train_x, np.array(train_y), new_valid_x, np.array(valid_y), new_test_x, np.array(test_y)
+def convertDataWithStrArgs(train_x, train_y, valid_x, valid_y, test_x, test_y):
+    new_train_x, new_train_y = convertDataWithStrArgsSingle(train_x, train_y)
+    new_valid_x, new_valid_y = convertDataWithStrArgsSingle(valid_x, valid_y)
+    new_test_x, new_test_y = convertDataWithStrArgsSingle(test_x, test_y)
+    return new_train_x, new_train_y, new_valid_x, new_valid_y, new_test_x, new_test_y
 
 def splitDatasetClass(dataset):
     dataset_list = [list(t) for t in zip(*dataset)]

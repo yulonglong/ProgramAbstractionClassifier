@@ -30,8 +30,8 @@ fi
 echo "Running script on ${theano_flags_device} : ${gpu_name}"
 
 expt_num="05"
-function_name="string_sub"
-num_parameter="2"
+function_name="nth"
+num_parameter="1"
 num_str_parameter="1"
 num_layer="2"
 
@@ -44,7 +44,7 @@ cnn_win="3"
 cnn_layer="1"
 rnn_dim="50"
 rnn_layer="1"
-pooling_type="meanot"
+pooling_type="attsum"
 
 optimizer="adagrad"
 

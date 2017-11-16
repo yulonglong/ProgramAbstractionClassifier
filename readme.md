@@ -28,6 +28,6 @@ The repository is publicly available at https://github.com/yulonglong/ProgramAbs
 2. Training: `python train.py -tr <training_file> -o <output_folder> -t <model_type>` or simply `./run_train.sh`:  
     - `<training_file>` specifies the path to the training file (e.g., `data/foo_1m.out`)  
     - `<output_folder>` specifies the folder name for the output of the program  
-    - `<model_type>` specifies the model name to be run. The best model is currently `nn` (a CNN).  
-      - A few other classifiers will be available soon
+    - `<model_type>` specifies the model name to be run. The best model is currently `nn` (a CRNN).
+    - Refer to `run_train.sh` for more parameters to tune the neural network model.
 

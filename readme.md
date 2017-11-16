@@ -1,4 +1,4 @@
-Program Verification Classifier
+Program Abstraction Classifier
 ===================================
 Given a set of input to a program or function, the model should learn and output either valid (1) or invalid (0).
 Invalid inputs will result in a program crash.

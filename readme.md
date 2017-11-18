@@ -1,12 +1,12 @@
 Program Abstraction Classifier
 ===================================
-Given a set of input to a program or function, the model should learn and output either valid (1) or invalid (0).
+Given a set of input to a program or function, the model should learn and output either valid (`1`) or invalid (`0`).
 Invalid inputs will result in a program crash.
 
 The repository is publicly available at https://github.com/yulonglong/ProgramAbstractionClassifier 
 
-Steven Kester Yuwono (sky@u.nus.edu)
-Thanh Toan Nguyen (toannt@comp.nus.edu.sg) 
+- Steven Kester Yuwono (sky@u.nus.edu)
+- Thanh Toan Nguyen (toannt@comp.nus.edu.sg) 
 
 **Requirements and Environment:**  
 

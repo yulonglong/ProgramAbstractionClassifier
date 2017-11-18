@@ -37,7 +37,7 @@ Dataset has been prepared in another GitHub repository (https://github.com/thanh
 Some of the datasets (Polynomial, String.set, List.nth) are very large (more than 300MB each), we are not able to store them in GitHub. Please let us know if you need those files.
 
 
-**Training and testing**
+**Training:**
 
 To train the model, read the shell script `run_train_nn.sh`
 It contains all the necessary information to run the model using `Complex` Dataset.
